@@ -3,6 +3,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
 
 from .models import Product, User
 
@@ -18,9 +19,14 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ("username", "email", "password1", "password2", "company", "position", "type")
 
-class UserActivationForm(forms.ModelForm):
+class UserPasswordForm(ModelForm):
     class Meta:
         model = User
-        fields = ()
-    user_code = forms.CharField(max_length=20,
-                                label="Введите код из письма, присланного после регистрации:")
+        fields = ["username", "email"]
+
+# class UserActivationForm(forms.ModelForm):
+#     class Meta:
+#         model = User
+#         fields = ()
+#     user_code = forms.CharField(max_length=20,
+#                                 label="Введите код из письма, присланного после регистрации:")

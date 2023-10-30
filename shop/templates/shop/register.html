@@ -11,13 +11,13 @@
 
     <div class=" album py-3 bg-light">
         <div class="container">
-            {% csrf_token %}
             <div class="card box-shadow">
                 <div class="card-body">
                     <form method="post" class="row" id="registerForm">
+                        {% csrf_token %}
                         {{ form.as_p }}
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
                     </form>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
                 </div>
             </div>
         </div>

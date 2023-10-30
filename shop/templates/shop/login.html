@@ -11,15 +11,14 @@
 
     <div class="album py-3 bg-light">
         <div class="container">
-
-            {% csrf_token %}
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
                     <form method="post" id="loginForm">
+                        {% csrf_token %}
                         {{ form.as_p }}
+                        <button class="btn btn-primary" type="submit">Войти</button>
+                        <input name="next" type="hidden" value="{% url 'shop:product' %}">
                     </form>
-                    <button class="btn btn-primary" type="submit">Войти</button>
-                    <input name="next" type="hidden" value="{% url 'shop:product' %}">
 
                 </div>
             </div>
