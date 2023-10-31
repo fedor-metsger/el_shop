@@ -60,3 +60,10 @@ class UserPasswordForm(ModelForm):
 #         fields = ()
 #     user_code = forms.CharField(max_length=20,
 #                                 label="Введите код из письма, присланного после регистрации:")
+
+class ProductUpdateForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+
+    url = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'http://link.to.file.yaml', 'id': 'URL'}))

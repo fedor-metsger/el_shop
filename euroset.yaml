@@ -41,7 +41,7 @@ goods:
       "Ёмкость (Мб)": 2000
       "Цвет": черный
   - id: 4255555
-    category: 18
+    category: 1
     model: trascend/4gb
     name: USB drive Trascend 4Gb
     price: 3000

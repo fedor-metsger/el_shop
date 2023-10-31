@@ -2,72 +2,20 @@
 
 {% load static %}
 
-{% block title %}Регистрация{% endblock %}
+{% block title %}Загрузка прайс-листа{% endblock %}
 
 {% block content %}
     <div class="card-header">
-        <h3>Регистрация</h3>
+        <h3>Загрузка прайс-листа</h3>
     </div>
     <div class="card mb-4 box-shadow">
         <div class="card-body">
             <form id="registerForm">
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <div class="mb-3">
-                                Имя пользователя:
-                                <input type="text" class="form-control" id="userNamePost" placeholder="User Name"
-                                       required>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="mb-3">
-                                Пароль:
-                                <input type="text" class="form-control" id="passwordPost" placeholder="Password"
-                                       required>
-                            </div>
-                        </td>
-{#                        <td>#}
-{#                            <div class="mb-3">#}
-{#                                Подтверждение пароля:#}
-{#                                <input type="text" class="form-control" id="password2Post" placeholder="Password"#}
-{#                                       required>#}
-{#                            </div>#}
-{#                        </td>#}
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="mb-3">
-                                e-mail:
-                                <input type="text" class="form-control" id="emailPost" placeholder="e-mail" required>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="mb-3">
-                                Компания:
-                                <input type="text" class="form-control" id="companyPost" placeholder="Company" required>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="mb-3">
-                                Должность:
-                                <input type="text" class="form-control" id="positionPost" placeholder="Position"
-                                       required>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="mb-3">
-                                Тип:<br>
-                                <select id="typePost">
-                                    <option value="customer">Покупатель</option>
-                                    <option value="shop">Магазин</option>
-                                </select>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <div class="mb-3">
+                    URL для загрузки файла:
+                    <input type="text" class="form-control" id="URL" placeholder="http://url.of/file.yaml"
+                           required>
+                </div>
                 <div class="mb-3">
                     <label for="queryData">Данные запроса через API:</label>
                     <textarea class="form-control" id="queryData"
@@ -75,7 +23,7 @@
                               placeholder="" readonly>
                             </textarea>
                 </div>
-                <button type="button" class="btn btn-success" onclick="clickRegister()">Зарегистрироваться</button>
+                <button type="button" class="btn btn-success" onclick="clickLoad()">Загрузить</button>
                 <div class="mb-3">
                     <label for="queryData">Результат:</label>
                     <textarea class="form-control" id="result"
@@ -90,61 +38,44 @@
 
 {% block javascript %}
     <script>
-        const inputUserName = document.getElementById("userNamePost");
-        const inputPassword = document.getElementById("passwordPost");
-        const inputEmail = document.getElementById("emailPost");
-        const inputCompany = document.getElementById("companyPost");
-        const inputPosition = document.getElementById("positionPost");
-        const inputType = document.getElementById("typePost");
+        const inputToken = document.getElementById("token");
+        const inputURL = document.getElementById("URL");
         const qData = document.getElementById("queryData");
         const result = document.getElementById("result");
 
-        inputUserName.addEventListener("input", updateUserData);
-        inputPassword.addEventListener("input", updateUserData);
-        inputEmail.addEventListener("input", updateUserData);
-        inputCompany.addEventListener("input", updateUserData);
-        inputPosition.addEventListener("input", updateUserData);
-        inputType.addEventListener("input", updateUserData);
+        inputURL.addEventListener("input", updateURLData);
 
-        function updateUserData(e) {
-            qData.textContent = "{\"username\": \"" + inputUserName.value + "\", " +
-                "\"password\": \"" + inputPassword.value + "\", " +
-                "\"email\": \"" + inputEmail.value + "\", " +
-                "\"company\": \"" + inputCompany.value + "\", " +
-                "\"position\": \"" + inputPosition.value + "\", " +
-                "\"type\": \"" + inputType.value + "\"}";
+        function updateURLData(e) {
+            qData.textContent = "{\"url\": \"" + inputURL.value + "\"}";
         }
 
-        function register(url, data, element) {
-            console.log("Start register")
+        function load(url, data, element) {
             $.ajax({
                 url: url,
                 method: "POST",
                 data: data,
                 dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
                 success: (data_out) => {
                     console.log(data_out);
                     element.value = JSON.stringify(data_out, null, 4);
                     element.style.height = (element.scrollHeight) + "px"
                 },
                 error: function (jqXHR, e) {
-                    console.log(jqXHR.responseJSON);
-                    element.value = JSON.stringify(jqXHR.responseJSON, null, 4);
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
                     element.style.height = (element.scrollHeight) + "px"
                 }
             });
         }
 
-        function clickRegister() {
+        function clickLoad() {
             var data = {
-                username: inputUserName.value,
-                password: inputPassword.value,
-                email: inputEmail.value,
-                company: inputCompany.value,
-                position: inputPosition.value,
-                type: inputType.value
+                url: inputURL.value,
             }
-            register("{% url 'shop:user_register' %}", data, result);
+            load("{% url 'backend:partner_update' %}", data, result);
         }
     </script>
 {% endblock %}

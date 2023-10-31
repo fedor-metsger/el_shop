@@ -17,9 +17,12 @@ STATE_CHOICES = (
     ('canceled', 'Отменен'),
 )
 
+USER_TYPE_CUSTOMER = "customer"
+USER_TYPE_SHOP = "shop"
+
 USER_TYPE_CHOICES = (
-    ('shop', 'Магазин'),
-    ('customer', 'Покупатель'),
+    (USER_TYPE_SHOP, 'Магазин'),
+    (USER_TYPE_CUSTOMER, 'Покупатель'),
 )
 
 

@@ -35,6 +35,8 @@
 
 {% block javascript %}
     <script>
+        const inputToken = document.getElementById("token");
+
         function getToken(url, data, element) {
             $.ajax({
                 url: url,
@@ -42,13 +44,16 @@
                 data: data,
                 dataType: "json",
                 success: (data) => {
-                    console.log(data["access"]);
+                    {#console.log(data["access"]);#}
+                    window.localStorage.setItem("token", data["access"]);
+                    inputToken.value = window.localStorage.getItem("token");
+                    console.log(window.localStorage.getItem("token"));
                     element.value = JSON.stringify(data, null, 4);
                     element.style.height = (element.scrollHeight) + "px"
                 },
                 error: (jqXHR, e) => {
-                    console.log(jqXHR.responseJSON);
-                    element.value = JSON.stringify(jqXHR.responseJSON, null, 4);
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
                     element.style.height = (element.scrollHeight) + "px"
                 }
             });

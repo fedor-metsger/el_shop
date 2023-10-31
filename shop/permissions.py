@@ -1,6 +1,8 @@
 
 from rest_framework.permissions import BasePermission
 
+import shop.models
+
 
 class UserPermission(BasePermission):
 
@@ -21,3 +23,13 @@ class UserPermission(BasePermission):
         #     return True
         else:
             return obj.pk == request.user.pk
+
+
+class IsShop(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.type == shop.models.USER_TYPE_SHOP
+
+
+class IsActive(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_active
