@@ -17,29 +17,14 @@
                         {% csrf_token %}
                         {{ form.as_p }}
                         <button class="btn btn-primary" type="submit">Войти</button>
+                        <button type="button" class="btn btn-success" onclick="clickGetToken()">Получить токен</button>
                         <input name="next" type="hidden" value="{% url 'shop:product' %}">
-                    </form>
-
-                </div>
-            </div>
-            <div class="card mb-4 box-shadow">
-                <div class="card-body">
-                    <form id="getTokenForm">
-                        <div class="mb-3">
-                            <label for="tokenPost">e-mail:</label>
-                            <input type="text" class="form-control" id="emailPost" placeholder="e-mail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tokenPost">Пароль:</label>
-                            <input type="text" class="form-control" id="passwordPost" placeholder="Password" required>
-                        </div>
-                        <button type="submit" class="btn btn-success">Получить токен</button>
                         <div class="mb-3">
                             <label for="tokenPost">Токен:</label>
                             <textarea class="form-control" id="tokenPost"
                                       style="font-family:Monospace;"
                                       placeholder="Token" readonly>
-                    </textarea>
+                            </textarea>
                         </div>
                     </form>
                 </div>
@@ -50,13 +35,31 @@
 
 {% block javascript %}
     <script>
-        $("#getTokenForm").on('submit', (e) => {
-            e.preventDefault();
+        function getToken(url, data, element) {
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: data,
+                dataType: "json",
+                success: (data) => {
+                    console.log(data["access"]);
+                    element.value = JSON.stringify(data, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                },
+                error: (jqXHR, e) => {
+                    console.log(jqXHR.responseJSON);
+                    element.value = JSON.stringify(jqXHR.responseJSON, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickGetToken() {
             var data = {
-                email: getTokenForm.elements["emailPost"].value,
-                password: getTokenForm.elements["passwordPost"].value,
+                email: loginForm.elements["emailPost"].value,
+                password: loginForm.elements["passwordPost"].value,
             }
-            getToken("{% url 'shop:token_obtain' %}", data, getTokenForm.elements["tokenPost"]);
-        })
+            getToken("{% url 'shop:token_obtain' %}", data, loginForm.elements["tokenPost"]);
+        }
     </script>
 {% endblock %}

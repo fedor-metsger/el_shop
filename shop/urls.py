@@ -1,15 +1,16 @@
 
-from django.urls import path
+from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+from shop.api_views import UserViewSet
 from shop.user_views import LoginView, LogoutView, UserRegisterView, UserPasswordView
 from shop.product_views import ProductListView
 
-app_name = "shop"
+app_name = "backend"
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
@@ -17,10 +18,12 @@ urlpatterns = [
     path("register/", UserRegisterView.as_view(), name="register"),
     # path("activation/<int:pk>/", UserActivationView.as_view(), name="activation"),
     # path("update/<int:pk>/", UserUpdateView.as_view(), name="update"),
-    path("password/", UserPasswordView.as_view(), name="password"),
+    path("password_reset/", UserPasswordView.as_view(), name="password"),
 
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain"),
+    path("user/login/", TokenObtainPairView.as_view(), name="token_obtain"),
     # path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path('user/register/', UserViewSet.as_view({"post": "create"}), name="user_register"),
+    path('user/password_reset/', UserViewSet.as_view({"patch": "partial_update"}), name="reset_password"),
 
     path("", ProductListView.as_view(), name="product"),
 ]

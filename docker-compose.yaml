@@ -52,19 +52,3 @@ services:
       - '80:80'
     depends_on:
       - backend
-
-  bot:
-    build: .
-    restart: always
-    command: python3 bot/main.py
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: shop
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "Qwer!234"
-      LOG_FILE_NAME: "/app/scraper.log"
-      PYTHONPATH: /app
-      PYTHONUNBUFFERED: 1
-    depends_on:
-      - db

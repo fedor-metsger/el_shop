@@ -6,20 +6,21 @@ from django.core.mail import send_mail
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView
 
-from shop.forms import UserRegisterForm, UserPasswordForm
+from shop.forms import UserRegisterForm, UserPasswordForm, UserLoginForm
 from shop.models import User
 
 class LoginView(BaseLoginView):
     template_name = "shop/login.html"
+    authentication_form = UserLoginForm
 
 class LogoutView(BaseLogoutView):
-    next_page = "shop:login"
+    next_page = "backend:login"
 
 class UserRegisterView(CreateView):
     model = User
     form_class = UserRegisterForm
     template_name = "shop/register.html"
-    success_url = reverse_lazy("shop:login")
+    success_url = reverse_lazy("backend:login")
 
     def form_valid(self, form):
         self.object = form.save()
@@ -91,7 +92,7 @@ class UserRegisterView(CreateView):
 class UserPasswordView(TemplateView):
     model = User
     form_class = UserPasswordForm
-    success_url = reverse_lazy("shop:login")
+    success_url = reverse_lazy("backend:login")
     template_name = 'shop/password.html'
 
     def form_valid(self, form):

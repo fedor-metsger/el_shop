@@ -65,7 +65,12 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     objects = UserManager()
     USERNAME_FIELD = 'email'
-    email = models.EmailField(_('адрес email'), unique=True)
+    email = models.EmailField(
+        _('адрес email'), unique=True,
+        error_messages = {
+            'unique': _("Пользователь с таким e-mail адресом уже существует.")
+        }
+    )
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
     username_validator = UnicodeUsernameValidator()
@@ -77,6 +82,7 @@ class User(AbstractUser):
         error_messages={
             'unique': _("Пользователь с таким именем уже существует."),
         },
+        unique=True
     )
     is_active = models.BooleanField(
         _('active'),

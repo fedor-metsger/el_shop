@@ -8,35 +8,16 @@
     <div class="card-header">
         <h3>Регистрация</h3>
     </div>
-
-    <div class=" album py-3 bg-light">
-        <div class="container">
-            <div class="card box-shadow">
-                <div class="card-body">
-                    <form method="post" class="row" id="registerForm">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироваться</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="card mb-4 box-shadow">
         <div class="card-body">
-            <form id="registerFormAPI">
+            <form id="registerForm">
                 <table width="100%">
                     <tr>
                         <td>
                             <div class="mb-3">
                                 Имя пользователя:
-                                <input type="text" class="form-control" id="userName" placeholder="User Name" required>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="mb-3">
-                                e-mail:
-                                <input type="text" class="form-control" id="emailPost" placeholder="e-mail" required>
+                                <input type="text" class="form-control" id="userNamePost" placeholder="User Name"
+                                       required>
                             </div>
                         </td>
                         <td>
@@ -46,13 +27,19 @@
                                        required>
                             </div>
                         </td>
+{#                        <td>#}
+{#                            <div class="mb-3">#}
+{#                                Подтверждение пароля:#}
+{#                                <input type="text" class="form-control" id="password2Post" placeholder="Password"#}
+{#                                       required>#}
+{#                            </div>#}
+{#                        </td>#}
                     </tr>
                     <tr>
                         <td>
                             <div class="mb-3">
-                                Подтверждение пароля:
-                                <input type="text" class="form-control" id="password2Post" placeholder="Password"
-                                       required>
+                                e-mail:
+                                <input type="text" class="form-control" id="emailPost" placeholder="e-mail" required>
                             </div>
                         </td>
                         <td>
@@ -72,21 +59,29 @@
                     <tr>
                         <td>
                             <div class="mb-3">
-                                Тип (shop, customer):
-                                <input type="text" class="form-control" id="positionPost" placeholder="Type" required>
+                                Тип:<br>
+                                <select id="typePost">
+                                    <option value="customer">Покупатель</option>
+                                    <option value="shop">Магазин</option>
+                                </select>
                             </div>
-                        </td>
-                        <td>
-                            <button type="submit" class="btn btn-success">Зарегистрироваться</button>
                         </td>
                     </tr>
                 </table>
                 <div class="mb-3">
-                    <label for="result">Ответ:</label>
+                    <label for="queryData">Данные запроса через API:</label>
+                    <textarea class="form-control" id="queryData"
+                              style="font-family:Monospace;"
+                              placeholder="" readonly>
+                            </textarea>
+                </div>
+                <button type="button" class="btn btn-success" onclick="clickRegister()">Зарегистрироваться</button>
+                <div class="mb-3">
+                    <label for="queryData">Результат:</label>
                     <textarea class="form-control" id="result"
                               style="font-family:Monospace;"
-                              placeholder="Ответ" readonly>
-                    </textarea>
+                              readonly>
+                            </textarea>
                 </div>
             </form>
         </div>
@@ -95,13 +90,61 @@
 
 {% block javascript %}
     <script>
-        $("#getTokenForm").on('submit', (e) => {
-            e.preventDefault();
+        const inputUserName = document.getElementById("userNamePost");
+        const inputPassword = document.getElementById("passwordPost");
+        const inputEmail = document.getElementById("emailPost");
+        const inputCompany = document.getElementById("companyPost");
+        const inputPosition = document.getElementById("positionPost");
+        const inputType = document.getElementById("typePost");
+        const qData = document.getElementById("queryData");
+        const result = document.getElementById("result");
+
+        inputUserName.addEventListener("input", updateUserData);
+        inputPassword.addEventListener("input", updateUserData);
+        inputEmail.addEventListener("input", updateUserData);
+        inputCompany.addEventListener("input", updateUserData);
+        inputPosition.addEventListener("input", updateUserData);
+        inputType.addEventListener("input", updateUserData);
+
+        function updateUserData(e) {
+            qData.textContent = "{\"username\": \"" + inputUserName.value + "\", " +
+                "\"password\": \"" + inputPassword.value + "\", " +
+                "\"email\": \"" + inputEmail.value + "\", " +
+                "\"company\": \"" + inputCompany.value + "\", " +
+                "\"position\": \"" + inputPosition.value + "\", " +
+                "\"type\": \"" + inputType.value + "\"}";
+        }
+
+        function register(url, data, element) {
+            console.log("Start register")
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: data,
+                dataType: "json",
+                success: (data_out) => {
+                    console.log(data_out);
+                    element.value = JSON.stringify(data_out, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                },
+                error: function (jqXHR, e) {
+                    console.log(jqXHR.responseJSON);
+                    element.value = JSON.stringify(jqXHR.responseJSON, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickRegister() {
             var data = {
-                email: getTokenForm.elements["emailPost"].value,
-                password: getTokenForm.elements["passwordPost"].value,
+                username: inputUserName.value,
+                password: inputPassword.value,
+                email: inputEmail.value,
+                company: inputCompany.value,
+                position: inputPosition.value,
+                type: inputType.value
             }
-            getToken({% url 'shop:token_obtain' %}, data, getTokenForm.elements["tokenPost"]);
-        })
+            register("{% url 'shop:user_register' %}", data, result);
+        }
     </script>
 {% endblock %}
