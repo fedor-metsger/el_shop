@@ -1,0 +1,52 @@
+shop: Евросеть
+categories:
+  - id: 224
+    name: Смартфоны
+  - id: 15
+    name: Аксессуары
+  - id: 1
+    name: Flash-накопители
+
+goods:
+  - id: 4333333
+    category: 224
+    model: apple/iphone/xs-max
+    name: Смартфон Apple iPhone XS Max 512GB (золотистый)
+    price: 108000
+    price_rrc: 116990
+    quantity: 24
+    parameters:
+      "Диагональ (дюйм)": 6.5
+      "Разрешение (пикс)": 2688x1242
+      "Встроенная память (Гб)": 512
+      "Цвет": серый
+  - id: 4233333
+    category: 1
+    model: trascend/1gb
+    name: USB drive Trascend 1Gb
+    price: 1000
+    price_rrc: 900
+    quantity: 39
+    parameters:
+      "Ёмкость (Мб)": 1000
+      "Цвет": красный
+  - id: 4244444
+    category: 1
+    model: trascend/2gb
+    name: USB drive Trascend 2Gb
+    price: 1600
+    price_rrc: 1500
+    quantity: 25
+    parameters:
+      "Ёмкость (Мб)": 2000
+      "Цвет": черный
+  - id: 4255555
+    category: 18
+    model: trascend/4gb
+    name: USB drive Trascend 4Gb
+    price: 3000
+    price_rrc: 2900
+    quantity: 12
+    parameters:
+      "Ёмкость (Мб)": 4000
+      "Цвет": черный
