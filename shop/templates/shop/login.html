@@ -18,7 +18,7 @@
                         {{ form.as_p }}
                         <button class="btn btn-primary" type="submit">Войти</button>
                         <button type="button" class="btn btn-success" onclick="clickGetToken()">Получить токен</button>
-                        <input name="next" type="hidden" value="{% url 'shop:product' %}">
+                        <input name="next" type="hidden" value="{% url 'backend:product-list' %}">
                         <div class="mb-3">
                             <label for="tokenPost">Токен:</label>
                             <textarea class="form-control" id="tokenPost"
@@ -64,7 +64,7 @@
                 email: loginForm.elements["emailPost"].value,
                 password: loginForm.elements["passwordPost"].value,
             }
-            getToken("{% url 'shop:token_obtain' %}", data, loginForm.elements["tokenPost"]);
+            getToken("{% url 'shop:token-obtain' %}", data, loginForm.elements["tokenPost"]);
         }
     </script>
 {% endblock %}

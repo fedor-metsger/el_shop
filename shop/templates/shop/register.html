@@ -27,13 +27,13 @@
                                        required>
                             </div>
                         </td>
-{#                        <td>#}
-{#                            <div class="mb-3">#}
-{#                                Подтверждение пароля:#}
-{#                                <input type="text" class="form-control" id="password2Post" placeholder="Password"#}
-{#                                       required>#}
-{#                            </div>#}
-{#                        </td>#}
+                        {#                        <td>#}
+                        {#                            <div class="mb-3">#}
+                        {#                                Подтверждение пароля:#}
+                        {#                                <input type="text" class="form-control" id="password2Post" placeholder="Password"#}
+                        {#                                       required>#}
+                        {#                            </div>#}
+                        {#                        </td>#}
                     </tr>
                     <tr>
                         <td>
@@ -81,7 +81,7 @@
                     <textarea class="form-control" id="result"
                               style="font-family:Monospace;"
                               readonly>
-                            </textarea>
+                    </textarea>
                 </div>
             </form>
         </div>
@@ -128,7 +128,9 @@
                 },
                 error: function (jqXHR, e) {
                     console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
-                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
+                    console.log(jqXHR.responseJSON);
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    element.value += JSON.stringify(jqXHR.responseJSON, null, 4);
                     element.style.height = (element.scrollHeight) + "px"
                 }
             });
@@ -143,7 +145,7 @@
                 position: inputPosition.value,
                 type: inputType.value
             }
-            register("{% url 'backend:user_register' %}", data, result);
+            register("{% url 'backend:user-register' %}", data, result);
         }
     </script>
 {% endblock %}

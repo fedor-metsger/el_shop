@@ -3,9 +3,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 
-from .models import Product, User
+from .models import Product, User, Shop, ProductInfo
 
 
 class ProductForm(forms.models.ModelForm):
@@ -24,9 +24,10 @@ class UserLoginForm(AuthenticationForm):
         attrs={'class': 'form-control', 'placeholder': 'Password', 'id': 'passwordPost'}))
 
 class UserRegisterForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ("username", "password1", "password2", "email", "company", "position", "type")
+    pass
+    # class Meta:
+    #     model = User
+    #     fields = ("username", "password1", "password2", "email", "company", "position", "type")
 
     # def __init__(self, *args, **kwargs):
     #     super(UserRegisterForm, self).__init__(*args, **kwargs)
@@ -61,9 +62,21 @@ class UserPasswordForm(ModelForm):
 #     user_code = forms.CharField(max_length=20,
 #                                 label="Введите код из письма, присланного после регистрации:")
 
-class ProductUpdateForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super(UserLoginForm, self).__init__(*args, **kwargs)
 
-    url = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'http://link.to.file.yaml', 'id': 'URL'}))
+class ProductListForm(Form):
+    pass
+    # url = forms.CharField(widget=forms.TextInput(
+    #     attrs={'class': 'form-control', 'placeholder': 'http://link.to.file.yaml', 'id': 'URL'}))
+
+
+class ProductUpdateForm(Form):
+    pass
+    # def __init__(self, *args, **kwargs):
+    #     super(UserLoginForm, self).__init__(*args, **kwargs)
+
+    # url = forms.CharField(widget=forms.TextInput(
+    #     attrs={'class': 'form-control', 'placeholder': 'http://link.to.file.yaml', 'id': 'URL'}))
+
+
+class BasketListForm(Form):
+    pass
