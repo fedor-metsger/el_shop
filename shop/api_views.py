@@ -1,4 +1,4 @@
-from django.db import IntegrityError
+
 from yaml import load as load_yaml, Loader
 from ujson import loads as load_json
 from requests import get
@@ -6,6 +6,7 @@ from requests import get
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.validators import URLValidator
+from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
 
@@ -73,12 +74,6 @@ class PartnerUpdate(APIView):
     """
     permission_classes = [IsAuthenticated, IsShop, IsActive]
     def post(self, request, *args, **kwargs):
-        # if not request.user.is_authenticated:
-        #     return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-        #
-        # if request.user.type != 'shop':
-        #     return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
-
         url = request.data.get('url')
         if url:
             validate_url = URLValidator()
@@ -150,7 +145,7 @@ class ProductInfoView(APIView):
         if category_id:
             query = query & Q(product__category_id=category_id)
 
-        # фильтруем и отбрасываем дуликаты
+        # фильтруем и отбрасываем дубликаты
         queryset = ProductInfo.objects.filter(
             query).select_related(
             'shop', 'product__category').prefetch_related(
@@ -160,11 +155,13 @@ class ProductInfoView(APIView):
 
         return Response(serializer.data)
 
+
 class ProductSimpleView(APIView):
     def get(self, request, *args, **kwargs):
         queryset = ProductInfo.objects.all().order_by("id")
         serializer = ProductSimpleSerializer(queryset, many=True)
         return Response(serializer.data)
+
 
 class BasketView(ListAPIView):
     """
