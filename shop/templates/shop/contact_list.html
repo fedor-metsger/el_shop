@@ -230,7 +230,6 @@
                 error: function (jqXHR, e) {
                     console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
                     console.log(jqXHR.responseJSON);
-                    console.log(jqXHR);
                     result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
                     result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
                     result.style.height = (result.scrollHeight) + "px"

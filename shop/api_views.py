@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from shop.models import User, Category, Shop, ProductInfo, Product, Parameter, ProductParameter, Order, OrderItem, \
-    Contact
+    Contact, STATE_CHOICE_BASKET, STATE_CHOICE_NEW
 from shop.permissions import UserPermission, IsShop, IsActive
 from shop.serializers import UserCreateSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     ProductSimpleSerializer, OrderItemSerializer, OrderSerializer, ContactSerializer
@@ -217,19 +217,30 @@ class OrderView(APIView):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
-        if {'id', 'contact'}.issubset(request.data):
-            if request.data['id'].isdigit():
+        if len(Order.objects.filter(user_id=request.user.id, state=STATE_CHOICE_BASKET)) == 0:
+            return JsonResponse({"Status": False, "Error": "Корзина не сохранена"})
+        basket = Order.objects.get(user_id=request.user.id, state=STATE_CHOICE_BASKET)
+        if len(OrderItem.objects.filter(order=basket)) == 0:
+            return JsonResponse({"Status": False, "Error": "Корзина пуста"})
+
+        # if {'id', 'contact'}.issubset(request.data):
+        if {'contact'}.issubset(request.data):
+                # if request.data['id'].isdigit():
                 try:
-                    is_updated = Order.objects.filter(
-                        user_id=request.user.id, id=request.data['id']).update(
-                        contact_id=request.data['contact'],
-                        state='new')
+                    # is_updated = Order.objects.filter(
+                    #     user_id=request.user.id, id=request.data['id']).update(
+                    #     contact_id = request.data['contact'],
+                    #     state = 'new')
+                    basket.state = STATE_CHOICE_NEW
+                    basket.contact_id = request.data['contact']
+                    basket.save()
+                    return JsonResponse({'Status': True})
                 except IntegrityError as error:
                     print(error)
                     return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
-                if is_updated:
+                # if is_updated:
                     # new_order.send(sender=self.__class__, user_id=request.user.id)
-                    return JsonResponse({'Status': True})
+                    # return JsonResponse({'Status': True})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 

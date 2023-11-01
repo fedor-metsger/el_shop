@@ -110,13 +110,3 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ('id', 'ordered_items', 'state', 'dt', 'total_sum', 'contact',)
         read_only_fields = ('id',)
-
-
-# class BasketItemSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Basket
-#         fields = ['id', 'product_info', 'quantity', 'user']
-#         read_only_fields = ['id']
-#         extra_kwargs = {
-#             'user': {'write_only': True}
-#         }

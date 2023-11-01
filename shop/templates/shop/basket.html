@@ -88,6 +88,10 @@
                     <button type="button" class="btn btn-primary" onclick="clickMakeOrder();">
                         Сделать заказ
                     </button>
+                    &emsp;Выберите контакт для доставки:&ensp;
+                    <select id="contactPost">
+                        {#                        <option value="0"></option>#}
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="queryData">Результат:</label>
@@ -108,6 +112,8 @@
         const inputToken = document.getElementById("token");
         const productsTable = document.getElementById("productsTable");
         const queryData = document.getElementById("queryData");
+        const result = document.getElementById("result");
+        const contactPost = document.getElementById("contactPost");
 
         var selectedProduct = "";
         var selectedProductRow = "";
@@ -149,6 +155,40 @@
             inputToken.style.height = (inputToken.scrollHeight) + "px"
 
             get_products()
+            get_contacts()
+        }
+
+        function get_contacts() {
+            $.ajax({
+                url: "{% url 'backend:user-contact' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        var el = document.createElement("option");
+                        el.textContent = data_out[i]["city"] + ", " +
+                            data_out[i]["street"] + ", " +
+                            data_out[i]["house"] + ", " +
+                            data_out[i]["structure"] + ", " +
+                            data_out[i]["building"] + ", " +
+                            data_out[i]["apartment"] + ", " +
+                            data_out[i]["phone"];
+                        el.value = data_out[i]["id"];
+                        contactPost.appendChild(el);
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
+                }
+            });
         }
 
         function get_products() {
@@ -248,30 +288,36 @@
             save_basket("{% url 'backend:basket' %}", data, result);
         }
 
-        function make_order(url, element) {
+        function run_request(type, url, data_in, el_status, callback) {
             $.ajax({
                 url: url,
-                method: "POST",
-                data: "",
+                method: type,
+                data: data_in,
                 dataType: "json",
                 beforeSend(xhr) {
                     xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
                 },
-                success: (data_out) => {
-                    console.log(data_out);
-                    element.value = JSON.stringify(data_out, null, 4);
-                    element.style.height = (element.scrollHeight) + "px"
+                success: (data) => {
+                    result.value = JSON.stringify(data, null, 4);
+                    result.style.height = (result.scrollHeight) + "px";
+                    if (typeof callback == "function") {
+                        callback();
+                    }
                 },
                 error: function (jqXHR, e) {
                     console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
-                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
-                    element.style.height = (element.scrollHeight) + "px"
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
                 }
             });
         }
 
         function clickMakeOrder() {
-            make_order("{% url 'backend:order' %}", result);
+            let data_in = {'contact': contactPost.value};
+            console.log(data_in)
+            run_request("POST", "{% url 'backend:order' %}", data_in, result, null);
         }
     </script>
 {% endblock %}

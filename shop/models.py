@@ -7,9 +7,12 @@ from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
 
 # Create your models here.
+
+STATE_CHOICE_BASKET = "basket"
+STATE_CHOICE_NEW = "new"
 STATE_CHOICES = (
-    ('basket', 'Статус корзины'),
-    ('new', 'Новый'),
+    (STATE_CHOICE_BASKET, 'Статус корзины'),
+    (STATE_CHOICE_NEW, 'Новый'),
     ('confirmed', 'Подтвержден'),
     ('assembled', 'Собран'),
     ('sent', 'Отправлен'),
@@ -19,7 +22,6 @@ STATE_CHOICES = (
 
 USER_TYPE_CUSTOMER = "customer"
 USER_TYPE_SHOP = "shop"
-
 USER_TYPE_CHOICES = (
     (USER_TYPE_SHOP, 'Магазин'),
     (USER_TYPE_CUSTOMER, 'Покупатель'),
