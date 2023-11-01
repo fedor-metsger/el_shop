@@ -20,33 +20,3 @@ goods:
       "Разрешение (пикс)": 2688x1242
       "Встроенная память (Гб)": 512
       "Цвет": серый
-  - id: 4233333
-    category: 1
-    model: trascend/1gb
-    name: USB drive Trascend 1Gb
-    price: 1000
-    price_rrc: 900
-    quantity: 39
-    parameters:
-      "Ёмкость (Мб)": 1000
-      "Цвет": красный
-  - id: 4244444
-    category: 1
-    model: trascend/2gb
-    name: USB drive Trascend 2Gb
-    price: 1600
-    price_rrc: 1500
-    quantity: 25
-    parameters:
-      "Ёмкость (Мб)": 2000
-      "Цвет": черный
-  - id: 4255555
-    category: 1
-    model: trascend/4gb
-    name: USB drive Trascend 4Gb
-    price: 3000
-    price_rrc: 2900
-    quantity: 12
-    parameters:
-      "Ёмкость (Мб)": 4000
-      "Цвет": черный
