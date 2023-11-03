@@ -6,7 +6,7 @@ from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from shop.models import Contact, Product
+from backend.models import Contact, Product
 
 class ProductDetailView(DetailView):
     model = Product

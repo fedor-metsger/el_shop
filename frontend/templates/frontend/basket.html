@@ -1,4 +1,4 @@
-{% extends "shop/base.html" %}
+{% extends "frontend/base.html" %}
 
 {% load static %}
 
@@ -8,9 +8,6 @@
     <div class="card-header">
         <h3>Положите товары в корзину</h3>
     </div>
-
-    {#    <div class="album py-3 bg-light">#}
-    {#        <div class="container">#}
     <form method="post" id="basketForm">
         <div class="card mb-4 box-shadow">
             <div class="card-body">
@@ -206,7 +203,7 @@
                             "<tr onclick=\"highlightProduct(this)\">" +
                             "<td>" + data_out[i]["id"] + "</td> +" +
                             "<td>" + data_out[i]["product"] + "</td> +" +
-                            "<td>" + data_out[i]["shop"] + "</td> +" +
+                            "<td>" + data_out[i]["backend"] + "</td> +" +
                             "<td>" + data_out[i]["quantity"] + "</td> +" +
                             "</tr>");
                     }

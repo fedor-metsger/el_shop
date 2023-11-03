@@ -5,19 +5,20 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Form
 
-from .models import Product, User, Shop, ProductInfo
+from backend.models import Product, User, Shop, ProductInfo
 
 
-class ProductForm(forms.models.ModelForm):
-    class Meta:
-        model = Product
-        fields = "__all__"
-        # exclude = ("creation_date", "modification_date", "owner")
+# class ProductForm(forms.models.ModelForm):
+#     class Meta:
+#         model = Product
+#         fields = "__all__"
+#         # exclude = ("creation_date", "modification_date", "owner")
 
 class UserLoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super(UserLoginForm, self).__init__(*args, **kwargs)
-
+    pass
+    # def __init__(self, *args, **kwargs):
+    #     super(UserLoginForm, self).__init__(*args, **kwargs)
+    #
     username = UsernameField(widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'User name', 'id': 'emailPost'}))
     password = forms.CharField(widget=forms.PasswordInput(
@@ -44,16 +45,17 @@ class UserRegisterForm(UserCreationForm):
     #     attrs={'class': 'form-control', 'placeholder': 'Company', 'id': 'companyPost'}))
     # position = forms.CharField(widget=forms.TextInput(
     #     attrs={'class': 'form-control', 'placeholder': 'Position', 'id': 'positionPost'}))
-    # CHOICES = [("customer", "Покупатель"), ("shop", "Магазин")]
+    # CHOICES = [("customer", "Покупатель"), ("backend", "Магазин")]
     # type = forms.ChoiceField(widget=forms.Select(
     #     attrs={'class': 'form-control', 'id': 'typePost'}),
     #     choices=CHOICES
     # )
 
 class UserPasswordForm(ModelForm):
-    class Meta:
-        model = User
-        fields = ["username", "email"]
+    pass
+    # class Meta:
+    #     model = User
+    #     fields = ["username", "email"]
 
 # class UserActivationForm(forms.ModelForm):
 #     class Meta:

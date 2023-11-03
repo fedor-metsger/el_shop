@@ -261,22 +261,3 @@ class OrderItem(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['order_id', 'product_info'], name='unique_order_item'),
         ]
-
-# class Basket(models.Model):
-#     user = models.ForeignKey(User, verbose_name='пользователь',
-#                              related_name='basket_items', blank=True,
-#                              on_delete=models.CASCADE)
-#     dt = models.DateTimeField(auto_now_add=True)
-#     product_info = models.ForeignKey(ProductInfo, verbose_name='продукт',
-#                                      related_name='baskets_items', blank=True,
-#                                      on_delete=models.CASCADE)
-#     quantity = models.PositiveIntegerField(verbose_name='количество')
-#
-#
-#     class Meta:
-#         verbose_name = 'корзина'
-#         verbose_name_plural = "список товаров в корзине"
-#         ordering = ('-dt',)
-#
-#     def __str__(self):
-#         return str(self.dt)

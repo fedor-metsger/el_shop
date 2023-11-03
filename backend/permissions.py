@@ -1,10 +1,10 @@
 
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 
-import shop.models
+import backend.models
 
 
-class UserPermission(BasePermission):
+class UserPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if view.action == "create":
@@ -25,11 +25,15 @@ class UserPermission(BasePermission):
             return obj.pk == request.user.pk
 
 
-class IsShop(BasePermission):
+class IsShop(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.type == shop.models.USER_TYPE_SHOP
+        return request.user.type == backend.models.USER_TYPE_SHOP
 
 
-class IsActive(BasePermission):
+class IsActive(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_active
+
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user

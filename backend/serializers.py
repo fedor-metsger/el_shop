@@ -1,8 +1,8 @@
-
+from django.db.models import Sum, F, Count
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView
 
-from shop.models import User, Category, Shop, Product, ProductParameter, ProductInfo, Contact, OrderItem, Order
+from backend.models import User, Category, Shop, Product, ProductParameter, ProductInfo, Contact, OrderItem, Order
 
 
 class UserPwdSerializer(serializers.ModelSerializer):
@@ -102,11 +102,31 @@ class OrderItemCreateSerializer(OrderItemSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     ordered_items = OrderItemCreateSerializer(read_only=True, many=True)
-
-    total_sum = serializers.IntegerField()
     contact = ContactSerializer(read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'ordered_items', 'state', 'dt', 'total_sum', 'contact',)
+        fields = ('id', 'ordered_items', 'state', 'dt', 'contact',)
         read_only_fields = ('id',)
+
+class OrderSimpleSerializer(serializers.ModelSerializer):
+    count_items = serializers.SerializerMethodField()
+    total_sum = serializers.SerializerMethodField()
+
+    def get_count_items(self, obj):
+        cnt = Order.objects.filter(id=obj.id).annotate(
+            count_items=Sum("ordered_items__quantity")).first().count_items
+        return cnt
+
+    def get_total_sum(self, obj):
+        s = Order.objects.filter(id=obj.id).annotate(
+            count_items=Sum(
+                F('ordered_items__quantity') * F('ordered_items__product_info__price')
+            )
+        ).first().count_items
+        return s
+
+    class Meta:
+        model = Order
+        fields = ["id", "state", "dt", "count_items", "total_sum"]
+        read_only_fields = ['id']

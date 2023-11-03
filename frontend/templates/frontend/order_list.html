@@ -1,0 +1,132 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Ваши заказы{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Ваши заказы</h3>
+    </div>
+    <form id="contactsForm">
+        <div class="card mb-4 box-shadow">
+            <div class="card-body">
+                <div class="mb-3">
+                    <table>
+                        <tr valign="top" style="height:3">
+                            <>
+                            <div class="container">
+                                <table id="ordersTable" border="2">
+                                    <thead>
+                                    <tr>
+                                        <th>id</th>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Количество</th>
+                                        <th>Сумма (руб.)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="container">
+                                <div class="mb-3">
+                                    <label for="URL">URL запроса через API:</label>
+                                    <textarea class="form-control" id="URL"
+                                              style="font-family:Monospace;"
+                                              placeholder="" readonly>
+                                    </textarea>
+                                    <label for="queryData">Результат:</label>
+                                    <textarea class="form-control" id="result"
+                                              style="font-family:Monospace;"
+                                              readonly>
+                                    </textarea>
+                                </div>
+                            </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        const ordersTable = document.getElementById("ordersTable");
+        const orderDetails = document.getElementById("orderDetails");
+        const URL = document.getElementById("URL");
+        const result = document.getElementById("result");
+
+        var selectedOrderRow = null;
+
+        function on_load() {
+            inputToken.value = window.localStorage.getItem("token");
+            inputToken.style.height = (inputToken.scrollHeight) + "px"
+
+            get_orders()
+        }
+
+        function get_orders() {
+            URL.value = "{% url "backend:order" %}";
+            $("#ordersTable tr:gt(0)").remove();
+            $.ajax({
+                url: "{% url 'backend:order' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        $("#ordersTable > tbody").append(
+                            "<tr onclick=\"highlightOrder(this)\">" +
+                            "<td>" + data_out[i]["id"] + "</td>" +
+                            "<td>" + data_out[i]["state"] + "</td>" +
+                            "<td>" + data_out[i]["dt"] + "</td>" +
+                            "<td>" + data_out[i]["count_items"] + "</td>" +
+                            "<td>" + data_out[i]["total_sum"] + "</td>" +
+                            "</tr>");
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function deHighlightOrders() {
+            URL.value = "{% url "backend:order" %}";
+            let rows = ordersTable.rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = "transparent";
+            }
+        }
+
+        function updateOrderData(e) {
+            URL.value = "{% url "backend:order" %}" + selectedOrderRow.cells[0].innerHTML + "/";
+            run_request("GET", URL.value, "", result, null)
+        }
+
+        function highlightOrder(row) {
+            if (selectedOrderRow == row) {
+                selectedOrderRow = null;
+                deHighlightOrders();
+                return;
+            }
+            selectedOrderRow = row;
+            deHighlightOrders();
+            row.style.backgroundColor = '#00C0F0';
+            row.classList.toggle("selectedRow");
+
+            updateOrderData();
+        }
+    </script>
+{% endblock %}
