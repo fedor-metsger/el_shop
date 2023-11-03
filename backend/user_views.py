@@ -6,20 +6,21 @@ from django.core.mail import send_mail
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView
 
-from shop.forms import UserRegisterForm, UserPasswordForm
-from shop.models import User
+from frontend.forms import UserRegisterForm, UserPasswordForm, UserLoginForm
+from backend.models import User
 
 class LoginView(BaseLoginView):
-    template_name = "shop/login.html"
+    template_name = "frontend/login.html"
+    authentication_form = UserLoginForm
 
 class LogoutView(BaseLogoutView):
-    next_page = "shop:login"
+    next_page = "backend:login"
 
 class UserRegisterView(CreateView):
     model = User
     form_class = UserRegisterForm
-    template_name = "shop/register.html"
-    success_url = reverse_lazy("shop:login")
+    template_name = "frontend/register.html"
+    success_url = reverse_lazy("frontend:login")
 
     def form_valid(self, form):
         self.object = form.save()
@@ -31,7 +32,7 @@ class UserRegisterView(CreateView):
         #     subject='Поздравляем с регистрацией',
         #     message='Вы зарегистрировались на нашей платформе, добро пожаловать!\n'
         #     f'Для активации пользовательского эккаунта введите код: {code}\n'
-        #     f'или перейдите по ссылке: {reverse_lazy("shop:activation")}/{self.object.id}/'
+        #     f'или перейдите по ссылке: {reverse_lazy("backend:activation")}/{self.object.id}/'
         #     f'?code={code}',
         #     from_email=settings.EMAIL_HOST_USER,
         #     recipient_list=[self.object.email]
@@ -48,7 +49,7 @@ class UserRegisterView(CreateView):
 # class UserActivationView(UpdateView):
 #     model = User
 #     form_class = UserActivationForm
-#     template_name = reverse_lazy("shop:activation")
+#     template_name = reverse_lazy("backend:activation")
 #
 #     def get_success_url(self):
 #         if self.request.user.is_authenticated:
@@ -91,8 +92,8 @@ class UserRegisterView(CreateView):
 class UserPasswordView(TemplateView):
     model = User
     form_class = UserPasswordForm
-    success_url = reverse_lazy("shop:login")
-    template_name = 'shop/password.html'
+    success_url = reverse_lazy("frontend:login")
+    template_name = 'frontend/password.html'
 
     def form_valid(self, form):
         self.object = form.save()

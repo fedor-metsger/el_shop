@@ -1,0 +1,81 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Загрузка прайс-листа{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Загрузка прайс-листа</h3>
+    </div>
+    <div class="card mb-4 box-shadow">
+        <div class="card-body">
+            <form id="registerForm">
+                <div class="mb-3">
+                    URL для загрузки файла:
+                    <input type="text" class="form-control" id="URL" placeholder="http://url.of/file.yaml"
+                           required>
+                </div>
+                <div class="mb-3">
+                    <label for="queryData">Данные запроса через API:</label>
+                    <textarea class="form-control" id="queryData"
+                              style="font-family:Monospace;"
+                              placeholder="" readonly>
+                            </textarea>
+                </div>
+                <button type="button" class="btn btn-success" onclick="clickLoad()">Загрузить</button>
+                <div class="mb-3">
+                    <label for="queryData">Результат:</label>
+                    <textarea class="form-control" id="result"
+                              style="font-family:Monospace;"
+                              readonly>
+                            </textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        const inputURL = document.getElementById("URL");
+        const qData = document.getElementById("queryData");
+        const result = document.getElementById("result");
+
+        inputURL.addEventListener("input", updateURLData);
+
+        function updateURLData(e) {
+            qData.textContent = "{\"url\": \"" + inputURL.value + "\"}";
+        }
+
+        function load(url, data, element) {
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: data,
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    console.log(data_out);
+                    element.value = JSON.stringify(data_out, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickLoad() {
+            var data = {
+                url: inputURL.value,
+            }
+            load("{% url 'backend:partner-update' %}", data, result);
+        }
+    </script>
+{% endblock %}

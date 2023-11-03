@@ -1,0 +1,251 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Ваши контакты{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Ваши контакты</h3>
+    </div>
+    <form id="contactsForm">
+        <div class="card mb-4 box-shadow">
+            <div class="card-body">
+                <div class="mb-3">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="container">
+                                    <table id="contactsTable" border="2">
+                                        <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>Город</th>
+                                            <th>Улица</th>
+                                            <th>Дом</th>
+                                            <th>Корпус</th>
+                                            <th>Строение</th>
+                                            <th>Квартира</th>
+                                            <th>Телефон</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-success" onclick="clickCreateContact();">
+                                        Добавить контакт
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" onclick="clickUpdateContact();">
+                                        Изменить контакт
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-danger" onclick="clickDeleteContact();">
+                                        Удолить контакт
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mb-3">
+                    {#                    <h4>Выделеный контакт:</h4>#}
+                    <table>
+                        <tr>
+                            <td>
+                                <label for="inputCity">Город:</label>
+                                <input type="text" class="form-control" id="inputCity" placeholder="Город" required>
+                            </td>
+                            <td>
+                                <label for="inputStreet">Улица:</label>
+                                <input type="text" class="form-control" id="inputStreet" placeholder="Улица" required>
+                            </td>
+                            <td>
+                                <label for="inputHouse">Дом:</label>
+                                <input type="text" class="form-control" id="inputHouse" placeholder="Дом">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="inputStructure">Корпус:</label>
+                                <input type="text" class="form-control" id="inputStructure" placeholder="Корпус">
+                            </td>
+                            <td>
+                                <label for="inputBuilding">Строение:</label>
+                                <input type="text" class="form-control" id="inputBuilding" placeholder="Строение">
+                            </td>
+                            <td>
+                                <label for="inputApartment">Квартира:</label>
+                                <input type="text" class="form-control" id="inputApartment" placeholder="Квартира">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="inputPhone">Телефон:</label>
+                                <input type="text" class="form-control" id="inputPhone" placeholder="Телефон" required>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mb-3">
+                    <label for="queryData">Данные запроса через API:</label>
+                    <textarea class="form-control" id="queryData"
+                              style="font-family:Monospace;"
+                              placeholder="" readonly>
+                            </textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="queryData">Результат:</label>
+                    <textarea class="form-control" id="result"
+                              style="font-family:Monospace;"
+                              readonly>
+                            </textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        const inputCity = document.getElementById("inputCity");
+        const inputStreet = document.getElementById("inputStreet");
+        const inputHouse = document.getElementById("inputHouse");
+        const inputStructure = document.getElementById("inputStructure");
+        const inputBuilding = document.getElementById("inputBuilding");
+        const inputApartment = document.getElementById("inputApartment");
+        const inputPhone = document.getElementById("inputPhone");
+        const queryData = document.getElementById("queryData");
+        const result = document.getElementById("result");
+
+        inputCity.addEventListener("input", updateQueryData);
+        inputStreet.addEventListener("input", updateQueryData);
+        inputHouse.addEventListener("input", updateQueryData);
+        inputStructure.addEventListener("input", updateQueryData);
+        inputBuilding.addEventListener("input", updateQueryData);
+        inputApartment.addEventListener("input", updateQueryData);
+        inputPhone.addEventListener("input", updateQueryData);
+
+        function on_load() {
+            inputToken.value = window.localStorage.getItem("token");
+            inputToken.style.height = (inputToken.scrollHeight) + "px"
+
+            get_contacts()
+        }
+
+        function get_contacts() {
+            $("#contactsTable tr:gt(0)").remove();
+            $.ajax({
+                url: "{% url 'backend:user-contact' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        $("#contactsTable > tbody").append(
+                            "<tr onclick=\"highlightContact(this)\">" +
+                            "<td>" + data_out[i]["id"] + "</td>" +
+                            "<td>" + data_out[i]["city"] + "</td>" +
+                            "<td>" + data_out[i]["street"] + "</td>" +
+                            "<td>" + data_out[i]["house"] + "</td>" +
+                            "<td>" + data_out[i]["structure"] + "</td>" +
+                            "<td>" + data_out[i]["building"] + "</td>" +
+                            "<td>" + data_out[i]["apartment"] + "</td>" +
+                            "<td>" + data_out[i]["phone"] + "</td>" +
+                            "</tr>");
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    element.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function deHighlightContacts() {
+            let rows = contactsTable.rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = "transparent";
+            }
+        }
+
+        function updateQueryData(e) {
+            queryData.value = "{\"city\": \"" + inputCity.value +
+                "\", \"street\": \"" + inputStreet.value +
+                "\", \"house\": \"" + inputHouse.value +
+                "\", \"structure\": \"" + inputStructure.value +
+                "\", \"building\": \"" + inputBuilding.value +
+                "\", \"apartment\": \"" + inputApartment.value +
+                "\", \"phone\": \"" + inputPhone.value + "\"}";
+        }
+
+        function highlightContact(row) {
+            selectedContact = row.cells[0].textContent;
+            selectedContactRow = row;
+            deHighlightContacts();
+            row.style.backgroundColor = '#00C0F0';
+            row.classList.toggle("selectedRow");
+
+            inputCity.value = row.cells[1].innerHTML;
+            inputStreet.value = row.cells[2].innerHTML;
+            inputHouse.value = row.cells[3].innerHTML;
+            inputStructure.value = row.cells[4].innerHTML;
+            inputBuilding.value = row.cells[5].innerHTML;
+            inputApartment.value = row.cells[6].innerHTML;
+            inputPhone.value = row.cells[7].innerHTML;
+            updateQueryData();
+        }
+
+        function run_request(type, url, data_in, el_status, callback) {
+            $.ajax({
+                url: url,
+                method: type,
+                data: data_in,
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data) => {
+                    result.value = JSON.stringify(data, null, 4);
+                    result.style.height = (result.scrollHeight) + "px";
+                    callback();
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickCreateContact() {
+            run_request("POST", "{% url 'backend:user-contact' %}",
+                JSON.parse(queryData.value), result, get_contacts);
+        }
+
+        function clickUpdateContact() {
+            let data_in = JSON.parse(queryData.value);
+            data_in["id"] = selectedContactRow.cells[0].innerHTML;
+            run_request("PUT", "{% url 'backend:user-contact' %}", data_in, result, get_contacts);
+        }
+
+        function clickDeleteContact() {
+            let data_in = {'items': selectedContactRow.cells[0].innerHTML};
+            run_request("DELETE", "{% url 'backend:user-contact' %}", data_in, result, get_contacts);
+        }
+    </script>
+{% endblock %}

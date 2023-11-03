@@ -4,7 +4,7 @@ FROM python:3
 WORKDIR /app
 
 COPY manage.py .
-COPY shop ./shop
+COPY backend ./backend
 COPY control ./control
 COPY static ./static
 COPY media ./media

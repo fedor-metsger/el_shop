@@ -7,9 +7,12 @@ from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
 
 # Create your models here.
+
+STATE_CHOICE_BASKET = "basket"
+STATE_CHOICE_NEW = "new"
 STATE_CHOICES = (
-    ('basket', 'Статус корзины'),
-    ('new', 'Новый'),
+    (STATE_CHOICE_BASKET, 'Статус корзины'),
+    (STATE_CHOICE_NEW, 'Новый'),
     ('confirmed', 'Подтвержден'),
     ('assembled', 'Собран'),
     ('sent', 'Отправлен'),
@@ -17,9 +20,11 @@ STATE_CHOICES = (
     ('canceled', 'Отменен'),
 )
 
+USER_TYPE_CUSTOMER = "customer"
+USER_TYPE_SHOP = "shop"
 USER_TYPE_CHOICES = (
-    ('shop', 'Магазин'),
-    ('customer', 'Покупатель'),
+    (USER_TYPE_SHOP, 'Магазин'),
+    (USER_TYPE_CUSTOMER, 'Покупатель'),
 )
 
 
@@ -65,7 +70,12 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     objects = UserManager()
     USERNAME_FIELD = 'email'
-    email = models.EmailField(_('адрес email'), unique=True)
+    email = models.EmailField(
+        _('адрес email'), unique=True,
+        error_messages = {
+            'unique': _("Пользователь с таким e-mail адресом уже существует.")
+        }
+    )
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
     username_validator = UnicodeUsernameValidator()
@@ -77,6 +87,7 @@ class User(AbstractUser):
         error_messages={
             'unique': _("Пользователь с таким именем уже существует."),
         },
+        unique=True
     )
     is_active = models.BooleanField(
         _('active'),

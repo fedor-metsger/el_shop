@@ -1,0 +1,320 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Положите товары в корзину</h3>
+    </div>
+    <form method="post" id="basketForm">
+        <div class="card mb-4 box-shadow">
+            <div class="card-body">
+                <div class="mb-3">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Товары</th>
+                            <th>Корзина</th>
+                        </tr>
+                        </thead>
+                        <tr>
+                            <td valign="top">
+                                <div class="container">
+                                    <table id="productsTable" border="2">
+                                        <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>Товар</th>
+                                            <th>Магазин</th>
+                                            <th>Кол-во</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </td>
+                            <td valign="top">
+                                <div class="container">
+                                    <table id="basketTable" border="2">
+                                        <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>Товар</th>
+                                            <th>Магазин</th>
+                                            <th>Кол-во</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center">
+                                <div class="container">
+                                    <button type="button" class="btn btn-success"
+                                            onclick="clickAddToBasket(); updateData();">
+                                        >>>
+                                    </button>
+                                </div>
+                            </td>
+                            <td align="center">
+                                <div class="container">
+                                    <button type="button" class="btn btn-success"
+                                            onclick="clickRemoveFromBasket(); updateData();">
+                                        <<<
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mb-3">
+                    <label for="queryData">Данные запроса через API:</label>
+                    <textarea class="form-control" id="queryData"
+                              style="font-family:Monospace;"
+                              placeholder="" readonly>
+                            </textarea>
+                </div>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-success" onclick="clickSaveBasket();">
+                        Сохранить корзину
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="clickMakeOrder();">
+                        Сделать заказ
+                    </button>
+                    &emsp;Выберите контакт для доставки:&ensp;
+                    <select id="contactPost">
+                        {#                        <option value="0"></option>#}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="queryData">Результат:</label>
+                    <textarea class="form-control" id="result"
+                              style="font-family:Monospace;"
+                              readonly>
+                            </textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+    {#        </div>#}
+    {#    </div>#}
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        const productsTable = document.getElementById("productsTable");
+        const queryData = document.getElementById("queryData");
+        const result = document.getElementById("result");
+        const contactPost = document.getElementById("contactPost");
+
+        var selectedProduct = "";
+        var selectedProductRow = "";
+        var selectedBasket = "";
+        var selectedBasketRow = "";
+
+        function highlightProduct(row) {
+            selectedProduct = row.cells[0].textContent;
+            selectedProductRow = row;
+            deHighlightProduct();
+            row.style.backgroundColor = '#00C0F0';
+            row.classList.toggle("selectedRow");
+        }
+
+        function deHighlightProduct() {
+            let rows = productsTable.rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = "transparent";
+            }
+        }
+
+        function highlightBasket(row) {
+            selectedBasket = row.cells[0].textContent;
+            selectedBasketRow = row;
+            deHighlightBasket();
+            row.style.backgroundColor = '#00C0F0';
+            row.classList.toggle("selectedRow");
+        }
+
+        function deHighlightBasket() {
+            let rows = basketTable.rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.backgroundColor = "transparent";
+            }
+        }
+
+        function on_load() {
+            inputToken.value = window.localStorage.getItem("token");
+            inputToken.style.height = (inputToken.scrollHeight) + "px"
+
+            get_products()
+            get_contacts()
+        }
+
+        function get_contacts() {
+            $.ajax({
+                url: "{% url 'backend:user-contact' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        var el = document.createElement("option");
+                        el.textContent = data_out[i]["city"] + ", " +
+                            data_out[i]["street"] + ", " +
+                            data_out[i]["house"] + ", " +
+                            data_out[i]["structure"] + ", " +
+                            data_out[i]["building"] + ", " +
+                            data_out[i]["apartment"] + ", " +
+                            data_out[i]["phone"];
+                        el.value = data_out[i]["id"];
+                        contactPost.appendChild(el);
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function get_products() {
+            $.ajax({
+                url: "{% url 'backend:products-simple' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        $("#productsTable > tbody").append(
+                            "<tr onclick=\"highlightProduct(this)\">" +
+                            "<td>" + data_out[i]["id"] + "</td> +" +
+                            "<td>" + data_out[i]["product"] + "</td> +" +
+                            "<td>" + data_out[i]["backend"] + "</td> +" +
+                            "<td>" + data_out[i]["quantity"] + "</td> +" +
+                            "</tr>");
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    element.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function updateData() {
+            resData = "";
+            basket_rn = 1;
+            while (basket_rn < basketTable.rows.length) {
+                if (basket_rn > 1) {
+                    resData += ", ";
+                }
+                resData += "{\"product_info\": " + basketTable.rows[basket_rn].cells[0].innerHTML +
+                    ", \"quantity\": " + basketTable.rows[basket_rn].cells[3].innerHTML + "}";
+                basket_rn++;
+            }
+            queryData.value = "[" + resData + "]";
+        }
+
+        function clickAddToBasket() {
+            basket_rn = 1;
+            while (basket_rn < basketTable.rows.length) {
+                if (basketTable.rows[basket_rn].cells[0].innerHTML === selectedProductRow.cells[0].innerHTML) {
+                    basketTable.rows[basket_rn].cells[3].innerHTML =
+                        Number(basketTable.rows[basket_rn].cells[3].innerHTML) + 1;
+                    return;
+                }
+                basket_rn++;
+            }
+            $("#basketTable > tbody").append("<tr onclick=\"highlightBasket(this)\">" +
+                "<td>" + selectedProductRow.cells[0].innerHTML + "</td>" +
+                "<td>" + selectedProductRow.cells[1].innerHTML + "</td>" +
+                "<td>" + selectedProductRow.cells[2].innerHTML + "</td>" +
+                "<td>1</td></tr>");
+        }
+
+        function clickRemoveFromBasket() {
+            if (Number(selectedBasketRow.cells[3].innerHTML) > 1) {
+                selectedBasketRow.cells[3].innerHTML = Number(selectedBasketRow.cells[3].innerHTML) - 1
+            } else {
+                basketTable.deleteRow(selectedBasketRow.rowIndex);
+            }
+        }
+
+        function save_basket(url, data, element) {
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: data,
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    console.log(data_out);
+                    element.value = JSON.stringify(data_out, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickSaveBasket() {
+            var data = {"items": queryData.value};
+            console.log(data);
+            save_basket("{% url 'backend:basket' %}", data, result);
+        }
+
+        function run_request(type, url, data_in, el_status, callback) {
+            $.ajax({
+                url: url,
+                method: type,
+                data: data_in,
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data) => {
+                    result.value = JSON.stringify(data, null, 4);
+                    result.style.height = (result.scrollHeight) + "px";
+                    if (typeof callback == "function") {
+                        callback();
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    result.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    result.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    result.style.height = (result.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickMakeOrder() {
+            let data_in = {'contact': contactPost.value};
+            console.log(data_in)
+            run_request("POST", "{% url 'backend:order' %}", data_in, result, null);
+        }
+    </script>
+{% endblock %}

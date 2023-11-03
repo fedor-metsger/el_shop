@@ -1,0 +1,55 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Вход</h3>
+    </div>
+
+    <div class="album py-3 bg-light">
+        <div class="container">
+            <div class="card mb-4 box-shadow">
+                <div class="card-body">
+                    <form method="post" id="loginForm">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+{#                        <button class="btn btn-primary" type="submit">Войти</button>#}
+                        <button type="button" class="btn btn-success" onclick="clickGetToken()">Получить токен</button>
+                        <input name="next" type="hidden" value="{% url 'frontend:product-list' %}">
+                        <div class="mb-3">
+                            <label for="tokenPost">Токен:</label>
+                            <textarea class="form-control" id="tokenPost"
+                                      style="font-family:Monospace;"
+                                      placeholder="Token" readonly>
+                            </textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        var token = null;
+
+        function set_token(data) {
+            window.localStorage.setItem("token", data["access"]);
+            inputToken.value = window.localStorage.getItem("token");
+        }
+
+        function clickGetToken() {
+            var data = {
+                email: loginForm.elements["emailPost"].value,
+                password: loginForm.elements["passwordPost"].value,
+            }
+            run_request("POST", "{% url 'backend:token-obtain' %}", data,
+                loginForm.elements["tokenPost"], set_token);
+        }
+    </script>
+{% endblock %}

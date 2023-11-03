@@ -6,19 +6,7 @@ from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from shop.models import Contact, Product
-
-class ProductListView(LoginRequiredMixin, ListView):
-    login_url = reverse_lazy("shop:login")
-    redirect_field_name = "redirect_to"
-
-    model = Product
-    extra_context = {
-        'title': 'Товары'
-    }
-    def get_queryset(self):
-        queryset = super().get_queryset().order_by('id')[:6]
-        return queryset
+from backend.models import Contact, Product
 
 class ProductDetailView(DetailView):
     model = Product

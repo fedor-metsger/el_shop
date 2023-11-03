@@ -1,0 +1,162 @@
+{% extends "frontend/base.html" %}
+
+{% load static %}
+
+{% block title %}Перечень товаров{% endblock %}
+
+{% block content %}
+    <div class="card-header">
+        <h3>Перечень товаров</h3>
+    </div>
+    <div class="card mb-4 box-shadow">
+        <div class="card-body">
+            <form id="registerForm">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            Магазин:<br>
+                            <select id="shopPost" onchange="updateURLData()">
+                                <option value="0"></option>
+                            </select>
+                        </td>
+                        <td>
+                            Категория:<br>
+                            <select id="categoryPost" onchange="updateURLData()">
+                                <option value="0"></option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <div class="mb-3">
+                    <label for="queryData">URL запроса через API:</label>
+                    <textarea class="form-control" id="URL"
+                              style="font-family:Monospace;"
+                              placeholder="" readonly>
+                            </textarea>
+                </div>
+                <button type="button" class="btn btn-success" onclick="clickLoad()">Вывести перечень</button>
+                <div class="mb-3">
+                    <label for="queryData">Результат:</label>
+                    <textarea class="form-control" id="result"
+                              style="font-family:Monospace;"
+                              readonly rows="10">
+                            </textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        const inputToken = document.getElementById("token");
+        const inputShop = document.getElementById("shopPost");
+        const inputCategory = document.getElementById("categoryPost");
+        const inputURL = document.getElementById("URL");
+        const result = document.getElementById("result");
+
+        inputShop.addEventListener("input", updateURLData);
+
+        function get_shops() {
+            $.ajax({
+                url: "{% url 'backend:shops' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        var el = document.createElement("option");
+                        el.textContent = data_out[i]["name"];
+                        el.value = data_out[i]["id"];
+                        inputShop.appendChild(el);
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    console.log(jqXHR.responseJSON);
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")\n";
+                    element.value += JSON.stringify(jqXHR.responseJSON, null, 4);
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function get_categories() {
+            $.ajax({
+                url: "{% url 'backend:categories' %}",
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    for (let i = 0; i < data_out.length; i++) {
+                        var el = document.createElement("option");
+                        el.textContent = data_out[i]["name"];
+                        el.value = data_out[i]["id"];
+                        inputCategory.appendChild(el);
+                    }
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    el_err.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
+                    el_err.style.height = (el_err.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function on_load() {
+            inputToken.value = window.localStorage.getItem("token");
+            inputToken.style.height = (inputToken.scrollHeight) + "px"
+            inputURL.value = "{% url 'backend:products' %}"
+
+            get_shops()
+            get_categories()
+        }
+
+        function updateURLData(e) {
+            console.log(inputShop.value)
+            inputURL.value = "{% url 'backend:products' %}"
+            if (inputShop.value != "0") {
+                inputURL.value += "?shop_id=" + inputShop.value;
+                if (inputCategory.value != "0") {
+                    inputURL.value += "&category_id=" + inputCategory.value;
+                }
+            } else {
+                if (inputCategory.value != "0") {
+                    inputURL.value += "?category_id=" + inputCategory.value;
+                }
+            }
+        }
+
+        function load(url, element) {
+            $.ajax({
+                url: url,
+                method: "GET",
+                data: "",
+                dataType: "json",
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
+                },
+                success: (data_out) => {
+                    console.log(data_out);
+                    element.value = JSON.stringify(data_out, null, 4);
+                    {#element.style.height = (element.scrollHeight) + "px"#}
+                },
+                error: function (jqXHR, e) {
+                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
+                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
+                    element.style.height = (element.scrollHeight) + "px"
+                }
+            });
+        }
+
+        function clickLoad() {
+            load(inputURL.value, result);
+        }
+    </script>
+{% endblock %}
