@@ -1,9 +1,8 @@
 
-from django.urls import path, include
-from rest_framework import routers
+from django.urls import path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView,
+    # TokenRefreshView,
 )
 
 from backend.views import UserViewSet, PartnerUpdate, CategoryView, ShopView, ProductInfoView, \
@@ -13,7 +12,7 @@ app_name = "backend"
 
 urlpatterns = [
     path("user/login/", TokenObtainPairView.as_view(), name="token-obtain"),
-    # path("api/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    # path("user/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("user/register/", UserViewSet.as_view({"post": "create"}), name="user-register"),
     path("user/password_reset/", UserViewSet.as_view({"patch": "partial_update"}), name="password-reset"),
     path("user/contact/", ContactView.as_view(), name="user-contact"),

@@ -1,6 +1,4 @@
-import time
 
-from celery.result import AsyncResult
 from ujson import loads as load_json
 
 from django.conf import settings
@@ -14,7 +12,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from backend.models import User, Category, Shop, ProductInfo, Product, Parameter, ProductParameter, Order, OrderItem, \
+from celery.result import AsyncResult
+
+from backend.models import User, Category, Shop, ProductInfo, Order, OrderItem, \
     Contact, STATE_CHOICE_BASKET, STATE_CHOICE_NEW
 from backend.permissions import UserPermission, IsShop, IsActive, IsOwner
 from backend.serializers import UserCreateSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
@@ -27,7 +27,6 @@ class UserViewSet(viewsets.ModelViewSet):
     Служит для работы с объектом "пользователь"
     """
     queryset = User.objects.all()
-    # serializer_class = UserCreateSerializer
     permission_classes = [UserPermission]
 
     def create(self, request):
@@ -50,8 +49,6 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Восстановление пароля.
         """
-        # serializer = UserPwdSerializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
         user = User.objects.get(username=request.data["username"], email=request.data["email"])
         new_password = User.objects.make_random_password()
         user.set_password(new_password)
@@ -190,11 +187,6 @@ class OrderView(APIView):
     permission_classes = [IsAuthenticated, IsActive]
     # получить мои заказы
     def get(self, request, *args, **kwargs):
-        # order = Order.objects.filter(
-        #     user_id=request.user.id).exclude(state='basket').prefetch_related(
-        #     'ordered_items__product_info__product__category',
-        #     'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
-        #     total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
         order = Order.objects.filter(
             user_id=request.user.id).exclude(state='basket').distinct()
 
@@ -203,33 +195,30 @@ class OrderView(APIView):
 
     # разместить заказ из корзины
     def post(self, request, *args, **kwargs):
-        # if not request.user.is_authenticated:
-        #     return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
         if len(Order.objects.filter(user_id=request.user.id, state=STATE_CHOICE_BASKET)) == 0:
             return JsonResponse({"Status": False, "Error": "Корзина не сохранена"})
         basket = Order.objects.get(user_id=request.user.id, state=STATE_CHOICE_BASKET)
         if len(OrderItem.objects.filter(order=basket)) == 0:
             return JsonResponse({"Status": False, "Error": "Корзина пуста"})
 
-        # if {'id', 'contact'}.issubset(request.data):
         if {'contact'}.issubset(request.data) and request.data['contact']:
-            # if request.data['id'].isdigit():
             try:
-                # is_updated = Order.objects.filter(
-                #     user_id=request.user.id, id=request.data['id']).update(
-                #     contact_id = request.data['contact'],
-                #     state = new')
                 basket.state = STATE_CHOICE_NEW
                 basket.contact_id = request.data['contact']
                 basket.save()
+                send_email.delay(
+                    subject=f'Заказ номер #{basket.id}',
+                    message=f"Вы сделали заказ.\n" \
+                            f'Дата заказа: {basket.dt}\n' \
+                            f'Статус: {basket.state}\n' \
+                            f'Контакт: {basket.contact}',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[request.user.email]
+                )
                 return JsonResponse({'Status': True})
             except IntegrityError as error:
                 print(error)
                 return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
-            # if is_updated:
-                # new_order.send(sender=self.__class__, user_id=request.user.id)
-                # return JsonResponse({'Status': True})
         return JsonResponse({'Status': False, 'Errors': 'Не указан контакт'})
 
 class ContactView(APIView):

@@ -1,15 +1,8 @@
 
-from django.urls import path, include
-from rest_framework import routers
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from django.urls import path
 
-from backend.views import UserViewSet, PartnerUpdate, CategoryView, ShopView, ProductInfoView, \
-    ProductSimpleView, BasketView, OrderView, ContactView
 from frontend.views import ProductUpdateView, ProductListView, BasketListView, ContactListView, OrderListView
-from backend.user_views import LoginView, LogoutView, UserRegisterView, UserPasswordView
+from frontend.user_views import LoginView, LogoutView, UserPasswordView, UserRegisterView
 
 app_name = "frontend"
 

@@ -1,6 +1,6 @@
+
 from django.db.models import Sum, F, Count
 from rest_framework import serializers
-from rest_framework.generics import ListAPIView
 
 from backend.models import User, Category, Shop, Product, ProductParameter, ProductInfo, Contact, OrderItem, Order
 
