@@ -1,0 +1,38 @@
+shop: DNS
+categories:
+  - id: 15
+    name: Аксессуары
+  - id: 1
+    name: Flash-накопители
+
+goods:
+  - id: 5061256
+    category: 15
+    model: apple/accessories
+    name: Накладка Aceline Fresh Color для Apple iPhone 14 черный [ТПУ]
+    price: 499
+    price_rrc: 500
+    quantity: 14
+    parameters:
+      "Материал": ТПУ
+      "Цвет": чёрный
+  - id: 5095077
+    category: 15
+    model: apple/accessories
+    name: Накладка DF для Apple iPhone 14 прозрачный [ТПУ]
+    price: 399
+    price_rrc: 400
+    quantity: 9
+    parameters:
+      "Материал": ТПУ
+      "Цвет": прозрачный
+  - id: 5084114
+    category: 15
+    model: apple/accessories
+    name: Накладка Apple Leather Case with MagSafe для Apple iPhone 14 коричневый [поликарбонат]
+    price: 999
+    price_rrc: 1000
+    quantity: 5
+    parameters:
+      "Материал": поликарбонат
+      "Цвет": коричневый
