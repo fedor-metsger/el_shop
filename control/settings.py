@@ -170,6 +170,8 @@ CORS_TRUSTED_ORIGINS = [
     "https://localhost"
 ]
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 # Настройки для Celery
 # URL-адрес брокера сообщений
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
