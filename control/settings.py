@@ -161,3 +161,27 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = "fuckup@oscarbot.ru"
 EMAIL_HOST_PASSWORD = "AsTSNVv7pun9"
 EMAIL_USE_SSL = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost"
+]
+
+CORS_TRUSTED_ORIGINS = [
+    "https://localhost"
+]
+
+# Настройки для Celery
+# URL-адрес брокера сообщений
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Europe/Moscow"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60

@@ -3,10 +3,11 @@ version: '3.9'
 
 volumes:
     v_data:
+    v_cache:
 
 services:
   db:
-    image: postgres:alpine
+    image: postgres:16.0-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: shop
@@ -15,6 +16,23 @@ services:
       PGDATA: /data
     volumes:
       - v_data:/data
+
+  redis:
+    image: redis:7.2.3-alpine
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - v_cache:/data
+
+  worker:
+    build: .
+    restart: always
+    command: /usr/local/bin/celery -A control worker -l INFO
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
 
   backend:
     build: .
@@ -41,7 +59,7 @@ services:
       - db
 
   web:
-    image: nginx:alpine
+    image: nginx:1.24.0-alpine
     restart: always
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf

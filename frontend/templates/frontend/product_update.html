@@ -24,6 +24,9 @@
                             </textarea>
                 </div>
                 <button type="button" class="btn btn-success" onclick="clickLoad()">Загрузить</button>
+                <label for="taskId">Task id:</label>
+                <input type="text" id="taskId" placeholder="" readonly>
+                <button type="button" class="btn btn-success" onclick="clickGetResult()">Получить результат</button>
                 <div class="mb-3">
                     <label for="queryData">Результат:</label>
                     <textarea class="form-control" id="result"
@@ -42,6 +45,7 @@
         const inputURL = document.getElementById("URL");
         const qData = document.getElementById("queryData");
         const result = document.getElementById("result");
+        const taskId = document.getElementById("taskId");
 
         inputURL.addEventListener("input", updateURLData);
 
@@ -49,33 +53,23 @@
             qData.textContent = "{\"url\": \"" + inputURL.value + "\"}";
         }
 
-        function load(url, data, element) {
-            $.ajax({
-                url: url,
-                method: "POST",
-                data: data,
-                dataType: "json",
-                beforeSend(xhr) {
-                    xhr.setRequestHeader("Authorization", "Bearer " + inputToken.value);
-                },
-                success: (data_out) => {
-                    console.log(data_out);
-                    element.value = JSON.stringify(data_out, null, 4);
-                    element.style.height = (element.scrollHeight) + "px"
-                },
-                error: function (jqXHR, e) {
-                    console.log("status: " + jqXHR.status + " (" + jqXHR.statusText + ")");
-                    element.value = "status: " + jqXHR.status + " (" + jqXHR.statusText + ")";
-                    element.style.height = (element.scrollHeight) + "px"
-                }
-            });
+        function callback(data) {
+            taskId.value = data["task_id"]
         }
 
         function clickLoad() {
             var data = {
                 url: inputURL.value,
             }
-            load("{% url 'backend:partner-update' %}", data, result);
+            run_request("POST", "{% url 'backend:partner-update' %}", data, result, callback);
+        }
+
+        function clickGetResult() {
+            console.log("============> " + taskId.value)
+            if (taskId.value) {
+                console.log(taskId.value)
+                run_request("GET", "{% url 'backend:partner-update' %}" + taskId.value + "/", "", result, null);
+            }
         }
     </script>
 {% endblock %}

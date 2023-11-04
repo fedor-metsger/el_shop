@@ -1,18 +1,15 @@
-from django.views.generic import DetailView
-from yaml import load as load_yaml, Loader
+import time
+
+from celery.result import AsyncResult
 from ujson import loads as load_json
-from requests import get
 
 from django.conf import settings
-from django.core.mail import send_mail
-from django.core.validators import URLValidator
 from django.db import IntegrityError
-from django.db.models import Q, Sum, F
+from django.db.models import Q
 from django.http import JsonResponse
 
 from rest_framework import viewsets, status
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +19,7 @@ from backend.models import User, Category, Shop, ProductInfo, Product, Parameter
 from backend.permissions import UserPermission, IsShop, IsActive, IsOwner
 from backend.serializers import UserCreateSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     ProductSimpleSerializer, OrderItemSerializer, OrderSerializer, ContactSerializer, OrderSimpleSerializer
+from backend.tasks import send_email, do_import
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -59,7 +57,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user.set_password(new_password)
         user.save()
 
-        send_mail(
+        send_email.delay(
             subject="Восстановление пароля",
             message=f"Ваш новый пароль: {new_password}",
             from_email=settings.EMAIL_HOST_USER,
@@ -68,49 +66,22 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(request.data, status=status.HTTP_200_OK)
 
 
-class PartnerUpdate(APIView):
+class PartnerUpdate(RetrieveUpdateAPIView):
     """
     Класс для обновления прайса от поставщика
     """
     permission_classes = [IsAuthenticated, IsShop, IsActive]
     def post(self, request, *args, **kwargs):
         url = request.data.get('url')
-        if url:
-            validate_url = URLValidator()
-            try:
-                validate_url(url)
-            except ValidationError as e:
-                return JsonResponse({'Status': False, 'Error': str(e)})
-            else:
-                stream = get(url).content
+        if not url:
+            return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
-                data = load_yaml(stream, Loader=Loader)
+        result = do_import.delay(url, request.user.id)
+        return JsonResponse({'status': True, "task_id": result.id})
 
-                shop, _ = Shop.objects.get_or_create(name=data['shop'], user_id=request.user.id)
-                for category in data['categories']:
-                    category_object, _ = Category.objects.get_or_create(id=category['id'], name=category['name'])
-                    category_object.shops.add(shop.id)
-                    category_object.save()
-                ProductInfo.objects.filter(shop_id=shop.id).delete()
-                for item in data['goods']:
-                    product, _ = Product.objects.get_or_create(name=item['name'], category_id=item['category'])
-
-                    product_info = ProductInfo.objects.create(product_id=product.id,
-                                                              external_id=item['id'],
-                                                              model=item['model'],
-                                                              price=item['price'],
-                                                              price_rrc=item['price_rrc'],
-                                                              quantity=item['quantity'],
-                                                              shop_id=shop.id)
-                    for name, value in item['parameters'].items():
-                        parameter_object, _ = Parameter.objects.get_or_create(name=name)
-                        ProductParameter.objects.create(product_info_id=product_info.id,
-                                                        parameter_id=parameter_object.id,
-                                                        value=value)
-
-                return JsonResponse({'Status': True})
-
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+    def retrieve(self, request, task_id):
+        result = AsyncResult(task_id)
+        return JsonResponse({"task_id": result.id, "task_info": str(result.info)})
 
 
 class CategoryView(ListAPIView):

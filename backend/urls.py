@@ -19,6 +19,7 @@ urlpatterns = [
     path("user/contact/", ContactView.as_view(), name="user-contact"),
 
     path("partner/update/", PartnerUpdate.as_view(), name="partner-update"),
+    path("partner/update/<str:task_id>/", PartnerUpdate.as_view(), name="update-status"),
     path("categories/", CategoryView.as_view(), name="categories"),
     path("shops/", ShopView.as_view(), name="shops"),
     path("products/", ProductInfoView.as_view(), name="products"),
