@@ -29,6 +29,14 @@ services:
     restart: always
     command: /usr/local/bin/celery -A control worker -l INFO
     environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: shop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "Qwer!234"
+      ALLOWED_HOST: backend
+      LOG_FILE_NAME: "/app/shop.log"
+      PYTHONUNBUFFERED: 1
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
     depends_on:
@@ -52,6 +60,8 @@ services:
       ALLOWED_HOST: backend
       LOG_FILE_NAME: "/app/shop.log"
       PYTHONUNBUFFERED: 1
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     volumes:
       - ./static:/app/static
       - ./media:/app/media
