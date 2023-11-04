@@ -1,10 +1,11 @@
 
-FROM python:3
+FROM python:3.11.5
 
 WORKDIR /app
 
 COPY manage.py .
 COPY backend ./backend
+COPY frontend ./frontend
 COPY control ./control
 COPY static ./static
 COPY media ./media
