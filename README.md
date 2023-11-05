@@ -494,28 +494,28 @@
 
 В нём реализованы следующие модели:
 
-1. [User](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L6C7-L6C10)
+1. [User](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L63)
    Содеожит данные о пользователе. Тип пользователя (сотрудник магазина или покупатель), e-mail, пароль, итд.
-1. [Shop](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L18)
+1. [Shop](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L109)
    Содержит описание магазина, который может создать пользователь.
-1. [Category](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L34)
+1. [Category](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L128)
    Содержит описание категории товара в магазине.
-1. [Product](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L6C7-L6C10)
+1. [Product](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L141)
    Содержит общее описание продукта (название и категорию).
-1. [ProductInfo](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L18)
+1. [ProductInfo](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L155)
    Содержит данные о наличии продукта в конкретном магазине (количество, цена, итд).
-1. [Parameter](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L34)
+1. [Parameter](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L174)
    Содержит параметр описания продукта, например модель и цвет.
    Эти параметры могут отличаться от продукта к продукту.
-1. [ProductParameter](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L6C7-L6C10)
+1. [ProductParameter](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L186)
    Промежуточная модель, организует связь **многие ко многим**
    между продуктами и их наличием в магазине.
-1. [Contact](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L18)
+1. [Contact](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L202)
    Содержит данные о контакте пользователя. Используется при оформлении заказа.
    У одного пользователя может быть несколько контактов.
-1. [Order](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L34)
+1. [Order](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L223)
    Содержит данные о заказе, сделанном покупателем.
-1. [OrderItem](https://github.com/fedor-metsger/codeforces/blob/b3ad149efed885f5cae6c8dad59caa72636987b9/problems/models.py#L6C7-L6C10)
+1. [OrderItem](https://github.com/fedor-metsger/el_shop/blob/a9bc5bf27d0dda60960f046876c2649292acf31d/backend/models.py#L242)
    Содержит данные о конкретных позициях в заказе. Организует связь **многие ко многим**
    между заказами и наличием продукта в магазине.
 
