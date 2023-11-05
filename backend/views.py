@@ -49,10 +49,13 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Восстановление пароля.
         """
-        user = User.objects.get(username=request.data["username"], email=request.data["email"])
-        new_password = User.objects.make_random_password()
-        user.set_password(new_password)
-        user.save()
+        try:
+            user = User.objects.get(username=request.data["username"], email=request.data["email"])
+            new_password = User.objects.make_random_password()
+            user.set_password(new_password)
+            user.save()
+        except Exception as error:
+            return JsonResponse({'Status': False, 'Errors': str(error)})
 
         send_email.delay(
             subject="Восстановление пароля",
@@ -236,7 +239,7 @@ class ContactView(APIView):
     # добавить новый контакт
     def post(self, request, *args, **kwargs):
         if {'city', 'street', 'phone'}.issubset(request.data):
-            request.data._mutable = True
+            # request.data._mutable = True
             request.data.update({'user': request.user.id})
             serializer = ContactSerializer(data=request.data)
 
