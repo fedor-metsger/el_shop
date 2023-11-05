@@ -1,3 +1,4 @@
+import time
 
 from ujson import loads as load_json
 
@@ -77,6 +78,7 @@ class PartnerUpdate(RetrieveUpdateAPIView):
             return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
         result = do_import.delay(url, request.user.id)
+        time.sleep(2)
         return JsonResponse({'status': True, "task_id": result.id})
 
     def retrieve(self, request, task_id):
@@ -239,7 +241,8 @@ class ContactView(APIView):
     # добавить новый контакт
     def post(self, request, *args, **kwargs):
         if {'city', 'street', 'phone'}.issubset(request.data):
-            # request.data._mutable = True
+            if hasattr(request.data, "_mutable"):
+                request.data._mutable = True
             request.data.update({'user': request.user.id})
             serializer = ContactSerializer(data=request.data)
 
