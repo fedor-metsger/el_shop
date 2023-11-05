@@ -47,7 +47,7 @@ goods:
   - id: 4672670
     category: 224
     model: apple/iphone/xr
-    name: Смартфон Apple iPhone XR 128GB (синий)1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+    name: Смартфон Apple iPhone XR 128GB (синий)
     price: 60000
     price_rrc: 64990
     quantity: 7
